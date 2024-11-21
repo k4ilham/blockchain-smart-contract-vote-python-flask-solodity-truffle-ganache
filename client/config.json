@@ -1,0 +1,6 @@
+{
+    "ganache_url": "http://127.0.0.1:7545",
+    "contract_address": "0x8e8d0E4dcEBc7F19FDf4B97e8279b41D5fa9025E",
+    "admin_account": "0x9d6CD4FDf738E5487703FBcaA51BaBe30060FcD5",
+    "contract_abi_path": "../smart_contracts/build/contracts/BlockchainVoting.json"
+}
