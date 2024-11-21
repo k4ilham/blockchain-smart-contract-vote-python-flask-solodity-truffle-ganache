@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from flask import Flask, request, jsonify
 from sklearn.ensemble import RandomForestClassifier
 import hashlib
@@ -7,19 +8,16 @@ import math
 # Inisialisasi Flask
 app = Flask(__name__)
 
-# Contoh dataset untuk pelatihan model
-# Fitur: [voter_id, candidate_id, vote_time]
-# Label: 0 = Valid Vote, 1 = Double Vote
-data = np.array([
-    [1, 101, 1637846400, 0],  # Valid Vote
-    [1, 101, 1637846410, 1],  # Double Vote (dengan voter_id yang sama)
-    [2, 102, 1637846500, 0],  # Valid Vote
-    [3, 103, 1637846550, 0],  # Valid Vote
-])
+# Membaca dataset dari file CSV
+df = pd.read_csv('dataset.csv')  # Pastikan file CSV ada di direktori yang sama
+
+# Memastikan kolom yang diperlukan ada dalam dataset
+if not all(col in df.columns for col in ["voter_id", "candidate_id", "vote_time", "label"]):
+    raise ValueError("CSV file must contain columns: 'voter_id', 'candidate_id', 'vote_time', 'label'")
 
 # Split data menjadi fitur dan label
-X = data[:, :3]  # Fitur
-y = data[:, 3]   # Label
+X = df[["voter_id", "candidate_id", "vote_time"]].values  # Fitur
+y = df["label"].values  # Label
 
 # Melatih model machine learning (Random Forest)
 model = RandomForestClassifier(n_estimators=100, random_state=42)
