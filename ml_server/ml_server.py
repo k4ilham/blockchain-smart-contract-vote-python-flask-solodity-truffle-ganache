@@ -4,9 +4,19 @@ from flask import Flask, request, jsonify
 from sklearn.ensemble import RandomForestClassifier
 import hashlib
 import math
+import mysql.connector  # Mengimpor mysql-connector
 
 # Inisialisasi Flask
 app = Flask(__name__)
+
+# Koneksi ke MySQL
+db = mysql.connector.connect(
+    host="localhost",      # Ganti dengan host MySQL Anda
+    user="root",           # Ganti dengan username MySQL Anda
+    password="",   # Ganti dengan password MySQL Anda
+    database="election_db" # Ganti dengan nama database yang sesuai
+)
+cursor = db.cursor()
 
 # Membaca dataset dari file CSV
 df = pd.read_csv('dataset.csv')  # Pastikan file CSV ada di direktori yang sama
@@ -32,6 +42,9 @@ def detect_double_vote():
         candidate_id = vote_data["candidate_id"]
         vote_time = vote_data["vote_time"]
 
+        # Log data suara yang diterima
+        print(f"Received vote data: {vote_data}")
+
         # Memastikan data lengkap
         if not all([voter_id, candidate_id, vote_time]):
             return jsonify({"error": "Missing data"}), 400
@@ -49,10 +62,21 @@ def detect_double_vote():
         # Tentukan status suara (Double Vote atau Valid Vote)
         result = "Double Vote" if prediction[0] == 1 else "Valid Vote"
 
+        # Log hasil prediksi
+        print(f"Prediction result: {result}")
+
+        # Menyimpan log ke dalam database MySQL
+        cursor.execute("""
+            INSERT INTO vote_logs (voter_id, candidate_id, vote_time, result)
+            VALUES (%s, %s, %s, %s)
+        """, (voter_id, candidate_id, vote_time, result))
+        db.commit()  # Menyimpan perubahan ke database
+
         # Kirimkan hasil prediksi kembali
         return jsonify({"status": result}), 200
 
     except Exception as e:
+        db.rollback()  # Jika terjadi kesalahan, batalkan transaksi
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
