@@ -18,7 +18,7 @@ def generate_synthetic_data(num_records=5000):
     return np.array(data)
 
 # Generate dataset sintetik
-synthetic_data = generate_synthetic_data(10)
+synthetic_data = generate_synthetic_data(500)
 
 # Mengonversi data ke DataFrame pandas
 df = pd.DataFrame(synthetic_data, columns=["voter_id", "candidate_id", "vote_time", "label"])
